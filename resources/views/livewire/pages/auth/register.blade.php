@@ -1,5 +1,6 @@
 <?php
 
+use Milwad\LaravelValidate\Rules\ValidPhoneNumber;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,7 @@ state([
 rules([
     'firstname' => ['required', 'string', 'max:255'],
     'lastname' => ['nullable', 'string', 'max:255'],
+    'phone_number'=> ['nullable', 'string', new ValidPhoneNumber],
     'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
     'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
 ]);
@@ -60,6 +62,12 @@ $register = function () {
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
+
+        <div>
+            <x-input-label for="phone_number" :value="__('Phone Number')" />
+            <x-text-input wire:model="phone_number" id="phone_number" class="block mt-1 w-full" type="text" name="phone_number" autofocus autocomplete="phone" />
+            <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
         </div>
 
         <!-- Password -->

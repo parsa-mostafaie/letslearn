@@ -1,5 +1,6 @@
 <?php
 
+use Milwad\LaravelValidate\Rules\ValidPhoneNumber;
 use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,7 @@ use function Livewire\Volt\state;
 state([
     'firstname' => fn () => auth()->user()->firstname,
     'lastname' => fn () => auth()->user()->lastname,
+    'phone_number'=> fn() => auth()->user()->phone_number,
     'email' => fn () => auth()->user()->email
 ]);
 
@@ -20,6 +22,7 @@ $updateProfileInformation = function () {
     $validated = $this->validate([
         'firstname' => ['required', 'string', 'max:255'],
         'lastname' => ['nullable', 'string', 'max:255'],
+        'phone_number'=> ['nullable', 'string', new ValidPhoneNumber],
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
     ]);
 
@@ -95,6 +98,12 @@ $sendVerification = function () {
                     @endif
                 </div>
             @endif
+        </div>
+
+        <div>
+            <x-input-label for="phone_number" :value="__('Phone Number')" />
+            <x-text-input wire:model="phone_number" id="phone_number" class="block mt-1 w-full" type="text" name="phone_number" autofocus autocomplete="phone" />
+            <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
         </div>
 
         <div class="flex items-center gap-4">
