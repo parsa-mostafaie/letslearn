@@ -13,14 +13,16 @@ use function Livewire\Volt\state;
 layout('layouts.guest');
 
 state([
-    'name' => '',
+    'firstname' => '',
+    'lastname' => '',
     'email' => '',
     'password' => '',
     'password_confirmation' => ''
 ]);
 
 rules([
-    'name' => ['required', 'string', 'max:255'],
+    'firstname' => ['required', 'string', 'max:255'],
+    'lastname' => ['nullable', 'string', 'max:255'],
     'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
     'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
 ]);
@@ -43,9 +45,14 @@ $register = function () {
     <form wire:submit="register">
         <!-- Name -->
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" class="block mt-1 w-full" type="text" name="name" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+            <x-input-label for="firstname" :value="__('First Name')" />
+            <x-text-input wire:model="firstname" id="firstname" class="block mt-1 w-full" type="text" name="firstname" required autofocus autocomplete="firstname" />
+            <x-input-error :messages="$errors->get('firstname')" class="mt-2" />
+        </div>
+        <div>
+            <x-input-label for="lastname" :value="__('Last Name')" />
+            <x-text-input wire:model="lastname" id="lastname" class="block mt-1 w-full" type="text" name="lastname" autofocus autocomplete="lastname" />
+            <x-input-error :messages="$errors->get('lastname')" class="mt-2" />
         </div>
 
         <!-- Email Address -->
