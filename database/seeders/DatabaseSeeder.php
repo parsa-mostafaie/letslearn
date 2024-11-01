@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!User::where('email', 'admin@example.com'))
+        if (!User::where('email', 'admin@example.com')->exists())
             User::factory()->create([
                 'id' => 1,
                 'firstname' => 'Admin',

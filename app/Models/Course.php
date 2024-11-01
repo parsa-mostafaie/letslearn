@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasImage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
-    use HasFactory;
+    use HasFactory, HasImage;
 
     protected $fillable = ['title', 'description', 'user_id', 'slug', 'thumbnail'];
 

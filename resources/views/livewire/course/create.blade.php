@@ -4,6 +4,8 @@ use function Livewire\Volt\{state, rules, usesFileUploads};
 
 use Milwad\LaravelValidate\Rules\ValidSlug;
 use Illuminate\Support\Str;
+use App\Models\Course;
+use Illuminate\Support\Facades\Auth;
 
 usesFileUploads();
 
@@ -19,21 +21,25 @@ state('json');
 rules([
     'title' => 'required|string|max:256',
     'description' => 'nullable|string|max:2048',
-    'slug' => ['nullable', 'string', new ValidSlug()],
-    'thumbnail' => 'image|max:1024',
+    'slug' => ['nullable', 'string', new ValidSlug(), 'unique:courses'],
+    'thumbnail' => 'nullable|image|max:1024',
 ]);
 
 $submit = function () {
-    $validated = $this->validate();
+    $data = $this->validate();
 
-    $validated['slug'] = $validated['slug'] ?: Str::slug($validated['title']);
+    $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
 
-    $validated['thumbnail'] = $validated['thumbnail']->store('course-thumbnails');
+    if ($data['thumbnail']) {
+        $data['thumbnail'] = $data['thumbnail']->store('course-thumbnails');
+    }
 
-    
+    Auth::user()->courses()->create($data);
+
     $this->dispatch('course-stored');
-};
-?>
+
+    $this->reset();
+}; ?>
 
 <section class="m-2 mx-3">
   <div>
@@ -67,11 +73,13 @@ $submit = function () {
     </div>
 
     <div>
-      <input type="file" wire:model="thumbnail">
+      <input type="file" wire:model="thumbnail" class="ring-none">
 
-      @error('photo')
-        <span class="error">{{ $message }}</span>
-      @enderror
+      <x-input-error :messages="$errors->get('thumbnail')" class="mt-2" />
+
+      @if ($thumbnail)
+        <img class="mt-2 rounded-lg w-[50%] block" src="{{ $thumbnail->temporaryUrl() }}" />
+      @endif
     </div>
 
     <div class="flex items-center gap-4">
