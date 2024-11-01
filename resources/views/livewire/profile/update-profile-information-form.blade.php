@@ -22,7 +22,7 @@ $updateProfileInformation = function () {
     $validated = $this->validate([
         'firstname' => ['required', 'string', 'max:255'],
         'lastname' => ['nullable', 'string', 'max:255'],
-        'phone_number'=> ['nullable', 'string', new ValidPhoneNumber],
+        'phone_number'=> ['nullable', 'string', new ValidPhoneNumber, 'unique:users'],
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
     ]);
 
