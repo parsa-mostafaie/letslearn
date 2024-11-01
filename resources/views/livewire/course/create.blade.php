@@ -16,8 +16,6 @@ state([
     'thumbnail',
 ]);
 
-state('json');
-
 rules([
     'title' => 'required|string|max:256',
     'description' => 'nullable|string|max:2048',

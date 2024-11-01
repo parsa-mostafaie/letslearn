@@ -14,7 +14,11 @@ class Course extends Model
 
     public function author()
     {
-        return $this->belongsTo(User::class); // A course belongs to one author (user)
+        return $this->belongsTo(User::class, 'user_id'); // A course belongs to one author (user)
+    }
+
+    public function user(){
+        return $this->author();
     }
 
     public function enrolledUsers()
