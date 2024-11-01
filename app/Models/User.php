@@ -57,4 +57,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getActivityIdentifierAttribute(){
         return "`$this->id`:`$this->name` (`$this->email`)";
     }
+
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class); // A user can be an author of many courses
+    }
+
+    public function enrolledCourses()
+    {
+        return $this->belongsToMany(Course::class)->withTimestamps(); // A user can enroll in many courses
+    }
 }
