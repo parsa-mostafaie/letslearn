@@ -40,8 +40,6 @@ class LoginForm extends Form
         }
 
         RateLimiter::clear($this->throttleKey());
-
-        event(new Login('web', Auth::user(), $this->remember));
     }
 
     /**

@@ -53,4 +53,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return Attribute::make(fn() => trim("$this->firstname $this->lastname"));
     }
+
+    public function getActivityIdentifierAttribute(){
+        return "`$this->id`:`$this->name` (`$this->email`)";
+    }
 }
