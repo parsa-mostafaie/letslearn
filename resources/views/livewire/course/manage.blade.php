@@ -5,7 +5,7 @@
     </h2>
 
     <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-      {{ __('Manager your own courses') }}
+      {{ __('Manage The courses') }}
     </p>
 
     <div class="overflow-auto mt-3">

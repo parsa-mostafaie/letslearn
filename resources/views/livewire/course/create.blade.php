@@ -35,6 +35,7 @@ $submit = function () {
     Auth::user()->courses()->create($data);
 
     $this->dispatch('course-stored');
+    $this->dispatch('courses-table-reload');
 
     $this->reset();
 }; ?>
