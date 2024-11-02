@@ -54,8 +54,8 @@ $submit = function () {
     // Save the course with updated data
     $this->course->update($data);
 
-    $this->dispatch('course-updated');
     $this->dispatch('courses-table-reload');
+    $this->dispatch('course-updated');
 
     $this->reset();
 };
@@ -107,10 +107,6 @@ $submit = function () {
 
     <div class="flex items-center gap-4">
       <x-primary-button :disabled="!$course">{{ __('Save') }}</x-primary-button>
-
-      <x-action-message class="me-3" on="course-updated">
-        {{ __('Saved.') }}
-      </x-action-message>
     </div>
   </form>
 </section>
@@ -126,6 +122,12 @@ $submit = function () {
           block: 'start'
         });
       }
+    });
+
+    $wire.on('course-updated', () => {
+      document.body.scrollIntoView({
+        behavior: 'smooth'
+      });
     });
   </script>
 @endscript
