@@ -32,8 +32,9 @@ class UserUnenrolledFromACourse implements ShouldQueue
         $course = $event->course;
 
         activity()
+            ->performedOn($course)
             ->causedBy($user)
-            ->withProperties(['ip' => request()->ip(), 'course' => $course->id])
+            ->withProperties(['ip' => request()->ip()])
             ->event('unenrollment')
             ->log("The $user->activity_identifier user, Unenrolled Course of `{$course->user->activity_identifier}`: `$course->title`");
 

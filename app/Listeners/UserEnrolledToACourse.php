@@ -33,8 +33,9 @@ class UserEnrolledToACourse implements ShouldQueue
         $course = $event->course;
 
         activity()
+            ->performedOn($course)
             ->causedBy($user)
-            ->withProperties(['ip' => request()->ip(), 'course' => $course->id])
+            ->withProperties(['ip' => request()->ip()])
             ->event('enrollment')
             ->log("The $user->activity_identifier user, Registered to Course of `{$course->user->activity_identifier}`: `$course->title`");
 
