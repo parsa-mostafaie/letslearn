@@ -7,6 +7,8 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Course;
 use Rappasoft\LaravelLivewireTables\Views\Columns\ButtonGroupColumn;
 use Rappasoft\LaravelLivewireTables\Views\Columns\ComponentColumn;
+use Rappasoft\LaravelLivewireTables\Views\Columns\LivewireComponentColumn;
+
 class CoursesTable extends DataTableComponent
 {
   protected $model = Course::class;
@@ -46,9 +48,9 @@ class CoursesTable extends DataTableComponent
         ->sortable(),
       Column::make("Updated at", "updated_at")
         ->sortable(),
-      ComponentColumn::make('Actions', 'id')
-        ->component('courses.actions')
-        ->attributes(fn($value, Course $row) => ['course' => $value])
+      LivewireComponentColumn::make('Actions', 'id')
+        ->component('course.actions')
+        ->attributes(fn($value)=>['course'=>$value]),
     ];
   }
 }
