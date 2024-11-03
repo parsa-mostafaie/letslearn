@@ -9,5 +9,6 @@ $getCourse = fn() => $this->course;
 ?>
 
 <div>
-  <livewire:course.action.edit-button :course="$this->course"></livewire:course.action.edit-button>
+  <livewire:course.action.edit-button :course="$this->course" />
+  <livewire:course.action.enroll-button :id="$this->course" />
 </div>

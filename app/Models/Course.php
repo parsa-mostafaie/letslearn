@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
-    use HasFactory, HasImage;
+    use HasFactory, HasImage, Traits\Enrollable;
 
     protected $fillable = ['title', 'description', 'user_id', 'slug', 'thumbnail'];
 
@@ -21,8 +21,4 @@ class Course extends Model
         return $this->author();
     }
 
-    public function enrolledUsers()
-    {
-        return $this->belongsToMany(User::class)->withTimestamps(); // A course can have many enrolled users
-    }
 }
