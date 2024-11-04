@@ -1,43 +1,24 @@
 <?php
 
-use function Livewire\Volt\{state, rules, usesFileUploads};
+use function Livewire\Volt\{state, form, usesFileUploads};
 
 use Milwad\LaravelValidate\Rules\ValidSlug;
 use Illuminate\Support\Str;
 use App\Models\Course;
 use Illuminate\Support\Facades\Auth;
+use App\Livewire\Forms\CourseForm;
 
 usesFileUploads();
 
-state([
-    'title' => '',
-    'description' => '',
-    'slug' => '',
-    'thumbnail',
-]);
-
-rules([
-    'title' => 'required|string|max:256',
-    'description' => 'nullable|string|max:2048',
-    'slug' => ['nullable', 'string', new ValidSlug(), 'unique:courses'],
-    'thumbnail' => 'nullable|image|max:1024',
-]);
+form(CourseForm::class);
 
 $submit = function () {
-    $data = $this->validate();
+    $this->authorize('create', Course::class);
 
-    $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
-
-    if ($data['thumbnail']) {
-        $data['thumbnail'] = $data['thumbnail']->store('course-thumbnails');
-    }
-
-    Auth::user()->courses()->create($data);
+    $this->form->save();
 
     $this->dispatch('course-stored');
     $this->dispatch('courses-table-reload');
-
-    $this->reset();
 }; ?>
 
 <section class="m-2 mx-3">
@@ -54,30 +35,30 @@ $submit = function () {
   <form wire:submit="submit" class="mt-6 space-y-6">
     <div>
       <x-input-label for="title" :value="__('Title')" />
-      <x-text-input wire:model="title" id="title" class="block mt-1 w-full" type="text" name="title" required
+      <x-text-input wire:model="form.title" id="title" class="block mt-1 w-full" type="text" name="title" required
         autofocus autocomplete="title" />
-      <x-input-error :messages="$errors->get('title')" class="mt-2" />
+      <x-input-error :messages="$errors->get('form.title')" class="mt-2" />
     </div>
     <div>
       <x-input-label for="description" :value="__('Description')" />
-      <x-text-input wire:model="description" id="description" class="block mt-1 w-full" type="text"
+      <x-text-input wire:model="form.description" id="description" class="block mt-1 w-full" type="text"
         name="description" autofocus autocomplete="description" />
-      <x-input-error :messages="$errors->get('description')" class="mt-2" />
+      <x-input-error :messages="$errors->get('form.description')" class="mt-2" />
     </div>
     <div>
       <x-input-label for="slug" :value="__('Slug')" />
-      <x-text-input wire:model="slug" id="slug" class="block mt-1 w-full" type="text" name="slug" autofocus
+      <x-text-input wire:model="form.slug" id="slug" class="block mt-1 w-full" type="text" name="slug" autofocus
         autocomplete="slug" />
-      <x-input-error :messages="$errors->get('slug')" class="mt-2" />
+      <x-input-error :messages="$errors->get('form.slug')" class="mt-2" />
     </div>
 
     <div>
-      <input type="file" wire:model="thumbnail" class="ring-none">
+      <input type="file" wire:model="form.thumbnail" class="ring-none">
 
-      <x-input-error :messages="$errors->get('thumbnail')" class="mt-2" />
+      <x-input-error :messages="$errors->get('form.thumbnail')" class="mt-2" />
 
-      @if ($thumbnail)
-        <img class="mt-2 rounded-lg w-[50%] block" src="{{ $thumbnail->temporaryUrl() }}" />
+      @if ($this->form->thumbnail)
+        <img class="mt-2 rounded-lg w-[50%] block" src="{{ $this->form->thumbnail->temporaryUrl() }}" />
       @endif
     </div>
 

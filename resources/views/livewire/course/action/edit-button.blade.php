@@ -7,7 +7,7 @@ use App\Models\Course;
 state(['course']);
 
 $action = function () {
-  $this->dispatch('edit-course', course_id: $this->course);
+  $this->dispatch('edit-course', course_id: $this->course->id);
 };
 ?>
 

@@ -1,34 +1,32 @@
 <?php
 
-use function Livewire\Volt\{state, rules, usesFileUploads, on};
+use function Livewire\Volt\{state, form, usesFileUploads, on, mount};
 
 use Milwad\LaravelValidate\Rules\ValidSlug;
 use Illuminate\Support\Str;
 use App\Models\Course;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Livewire\Forms\CourseForm;
 
 usesFileUploads();
 
-state(['thumbnail', 'title' => '', 'description' => '', 'slug' => '']);
+state(['course' => null]);
 
-state(['course' => null])->modelable();
-
-rules([
-    'title' => 'required|string|max:256',
-    'description' => 'nullable|string|max:2048',
-    'slug' => ['nullable', 'string', new ValidSlug()],
-    'thumbnail' => 'nullable|image|max:1024',
-]);
+form(CourseForm::class, 'form');
 
 on([
     'edit-course' => function ($course_id) {
-        $this->course = Course::find($course_id);
+        $course = Course::findOrFail($course_id);
+
+        $this->authorize('update', $course);
+
+        $this->course = $course;
 
         if ($this->course) {
-            $this->title = $this->course->title;
-            $this->description = $this->course->description;
-            $this->slug = $this->course->slug;
+            $this->form->title = $this->course->title;
+            $this->form->description = $this->course->description;
+            $this->form->slug = $this->course->slug;
 
             $this->dispatch('course-update-form-opened');
         }
@@ -40,24 +38,14 @@ $submit = function () {
         return;
     }
 
-    $data = $this->validate(['slug' => [Rule::unique('courses')->ignore($this->course)]]);
+    $this->authorize('update', $this->course);
 
-    $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
-
-    if (!empty($data['thumbnail'])) {
-        $data['thumbnail'] = $data['thumbnail']->store('course-thumbnails');
-        $this->course->removePreviousImage();
-    }
-
-    unset($data['course']);
-
-    // Save the course with updated data
-    $this->course->update($data);
+    $this->form->save($this->course);
 
     $this->dispatch('courses-table-reload');
     $this->dispatch('course-updated');
 
-    $this->reset();
+    $this->course = null;
 };
 ?>
 
@@ -75,33 +63,33 @@ $submit = function () {
   <form wire:submit="submit" class="mt-6 space-y-6" @if (!$course) inert @endif>
     <div>
       <x-input-label for="title" :value="__('Title')" />
-      <x-text-input :disabled="!$course" wire:model="title" id="title" class="block mt-1 w-full" type="text"
+      <x-text-input :disabled="!$course" wire:model="form.title" id="title" class="block mt-1 w-full" type="text"
         name="title" required autofocus autocomplete="title" />
-      <x-input-error :messages="$errors->get('title')" class="mt-2" />
+      <x-input-error :messages="$errors->get('form.title')" class="mt-2" />
     </div>
 
     <div>
       <x-input-label for="description" :value="__('Description')" />
-      <x-text-input wire:model="description" id="description" class="block mt-1 w-full" type="text"
+      <x-text-input wire:model="form.description" id="description" class="block mt-1 w-full" type="text"
         name="description" autofocus autocomplete="description" :disabled="!$course" />
-      <x-input-error :messages="$errors->get('description')" class="mt-2" />
+      <x-input-error :messages="$errors->get('form.description')" class="mt-2" />
     </div>
 
     <div>
       <x-input-label for="slug" :value="__('Slug')" />
-      <x-text-input :disabled="!$course" wire:model="slug" id="slug" class="block mt-1 w-full" type="text"
+      <x-text-input :disabled="!$course" wire:model="form.slug" id="slug" class="block mt-1 w-full" type="text"
         name="slug" autofocus autocomplete="slug" />
-      <x-input-error :messages="$errors->get('slug')" class="mt-2" />
+      <x-input-error :messages="$errors->get('form.slug')" class="mt-2" />
     </div>
 
     <div>
-      <input type="file" wire:model="thumbnail" class="ring-none" @disabled(!$course)>
+      <input type="file" wire:model="form.thumbnail" class="ring-none" @disabled(!$course)>
 
-      <x-input-error :messages="$errors->get('thumbnail')" class="mt-2" />
+      <x-input-error :messages="$errors->get('form.thumbnail')" class="mt-2" />
 
-      @if ($thumbnail || $course)
+      @if ($this->form->thumbnail || $course)
         <img class="mt-2 rounded-lg w-[50%] block"
-          src="{{ $thumbnail ? $thumbnail->temporaryUrl() : $course?->image_url }}" />
+          src="{{ $this->form->thumbnail ? $this->form->thumbnail->temporaryUrl() : $course?->image_url }}" />
       @endif
     </div>
 

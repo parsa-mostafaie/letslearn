@@ -20,7 +20,7 @@ mount(function(){
   <div class="grow">
     <h1 class="font-bold text-lg flex justify-between mb-2">
       {{ $course->title }}
-      <div><livewire:course.action.enroll-button :id="$course->id" /></div>
+      <div><livewire:course.action.enroll-button :course="$course" /></div>
     </h1>
     {{ $course->description }}
   </div>
