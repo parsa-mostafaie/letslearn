@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\CourseUnenrollment;
+use App\Jobs\SendCourseUnenrollmentEmail;
 use App\Mail\CourseUnenrolledByUser;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -38,7 +39,7 @@ class UserUnenrolledFromACourse implements ShouldQueue
             ->event('unenrollment')
             ->log("The $user->activity_identifier user, Unenrolled Course of `{$course->user->activity_identifier}`: `$course->title`");
 
-        Mail::to($course->author)->send(new CourseUnenrolledByUser($user, $course));
+        SendCourseUnenrollmentEmail::dispatch(course: $course, user: $user);
 
     }
 }

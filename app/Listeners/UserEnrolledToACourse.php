@@ -3,13 +3,14 @@
 namespace App\Listeners;
 
 use App\Events\CourseEnrollment;
+use App\Jobs\SendCourseEnrollmentEmail;
 use App\Jobs\UserEnrolledToCourse;
 use App\Mail\CourseEnrolledByUser;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Mail;
 
-class UserEnrolledToACourse implements ShouldQueue
+class UserEnrolledToACourse
 {
     /**
      * Create the event listener.
@@ -39,7 +40,6 @@ class UserEnrolledToACourse implements ShouldQueue
             ->event('enrollment')
             ->log("The $user->activity_identifier user, Registered to Course of `{$course->user->activity_identifier}`: `$course->title`");
 
-        Mail::to($course->author)->send(new CourseEnrolledByUser($user, $course));
-
+        SendCourseEnrollmentEmail::dispatch(course: $course, user: $user);
     }
 }
