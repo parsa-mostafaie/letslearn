@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+*:is(.tw-root):has([tw-none]) {
+  display: none;
+}

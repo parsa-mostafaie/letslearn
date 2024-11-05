@@ -10,8 +10,8 @@ on([
     },
 ]);
 
-mount(function(){
-  event(new CourseViewedEvent($this->course, auth()->user()));
+mount(function () {
+    event(new CourseViewedEvent($this->course, auth()->user()));
 });
 ?>
 
@@ -20,8 +20,9 @@ mount(function(){
   <div class="grow">
     <h1 class="font-bold text-lg flex justify-between mb-2">
       {{ $course->title }}
-      <div><livewire:course.action.enroll-button :id="$course->id" /></div>
+      <div><livewire:course.action.enroll-button :course="$course" /></div>
     </h1>
     {{ $course->description }}
+    <p class="text-gray-400">{{ $course->author->name }}</p>
   </div>
 </div>

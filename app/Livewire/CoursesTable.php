@@ -50,7 +50,7 @@ class CoursesTable extends DataTableComponent
         ->sortable(),
       LivewireComponentColumn::make('Actions', 'id')
         ->component('course.actions')
-        ->attributes(fn($value)=>['course'=>$value]),
+        ->attributes(fn($value)=>['course_id'=>$value]),
     ];
   }
 }

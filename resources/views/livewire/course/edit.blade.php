@@ -1,114 +1,96 @@
 <?php
 
-use function Livewire\Volt\{state, rules, usesFileUploads, on};
+use function Livewire\Volt\{state, form, usesFileUploads, on, mount};
 
 use Milwad\LaravelValidate\Rules\ValidSlug;
 use Illuminate\Support\Str;
 use App\Models\Course;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Livewire\Forms\CourseForm;
 
 usesFileUploads();
 
-state(['thumbnail', 'title' => '', 'description' => '', 'slug' => '']);
+state(['course' => null]);
 
-state(['course' => null])->modelable();
-
-rules([
-    'title' => 'required|string|max:256',
-    'description' => 'nullable|string|max:2048',
-    'slug' => ['nullable', 'string', new ValidSlug()],
-    'thumbnail' => 'nullable|image|max:1024',
-]);
+form(CourseForm::class, 'form');
 
 on([
     'edit-course' => function ($course_id) {
-        $this->course = Course::find($course_id);
+        $course = Course::findOrFail($course_id);
 
-        if ($this->course) {
-            $this->title = $this->course->title;
-            $this->description = $this->course->description;
-            $this->slug = $this->course->slug;
+        $this->authorize('update', $course);
 
+        if ($this->form->setModel($course)) {
             $this->dispatch('course-update-form-opened');
         }
     },
 ]);
 
 $submit = function () {
-    if (!$this->course) {
+    if (!$this->form->course) {
         return;
     }
 
-    $data = $this->validate(['slug' => [Rule::unique('courses')->ignore($this->course)]]);
+    $this->authorize('update', $this->form->course);
 
-    $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
-
-    if (!empty($data['thumbnail'])) {
-        $data['thumbnail'] = $data['thumbnail']->store('course-thumbnails');
-        $this->course->removePreviousImage();
-    }
-
-    unset($data['course']);
-
-    // Save the course with updated data
-    $this->course->update($data);
+    $this->form->save($this->form->course);
 
     $this->dispatch('courses-table-reload');
     $this->dispatch('course-updated');
-
-    $this->reset();
 };
 ?>
 
-<section class="m-2 mx-3" id="edit-course-section">
-  <div>
-    <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-      {{ __('Edit a course') }}
-    </h2>
-
-    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-      {{ __('Edit a course') }}
-    </p>
-  </div>
-
-  <form wire:submit="submit" class="mt-6 space-y-6" @if (!$course) inert @endif>
+<section class="m-2 mx-3" id="edit-course-section" @if (!$this->form->course) tw-none @endif>
+  @if ($this->form->course)
     <div>
-      <x-input-label for="title" :value="__('Title')" />
-      <x-text-input :disabled="!$course" wire:model="title" id="title" class="block mt-1 w-full" type="text"
-        name="title" required autofocus autocomplete="title" />
-      <x-input-error :messages="$errors->get('title')" class="mt-2" />
+      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+        {{ __('Edit a course') }}
+      </h2>
+
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        {{ __('Edit a course') }}
+      </p>
     </div>
 
-    <div>
-      <x-input-label for="description" :value="__('Description')" />
-      <x-text-input wire:model="description" id="description" class="block mt-1 w-full" type="text"
-        name="description" autofocus autocomplete="description" :disabled="!$course" />
-      <x-input-error :messages="$errors->get('description')" class="mt-2" />
-    </div>
+    <form wire:submit="submit" class="mt-6 space-y-6" @if (!$this->form->course) inert @endif>
+      <div>
+        <x-input-label for="title" :value="__('Title')" />
+        <x-text-input :disabled="!$this->form->course" wire:model="form.title" id="title" class="block mt-1 w-full" type="text"
+          name="title" required autofocus autocomplete="title" />
+        <x-input-error :messages="$errors->get('form.title')" class="mt-2" />
+      </div>
 
-    <div>
-      <x-input-label for="slug" :value="__('Slug')" />
-      <x-text-input :disabled="!$course" wire:model="slug" id="slug" class="block mt-1 w-full" type="text"
-        name="slug" autofocus autocomplete="slug" />
-      <x-input-error :messages="$errors->get('slug')" class="mt-2" />
-    </div>
+      <div>
+        <x-input-label for="description" :value="__('Description')" />
+        <x-text-input wire:model="form.description" id="description" class="block mt-1 w-full" type="text"
+          name="description" autofocus autocomplete="description" :disabled="!$this->form->course" />
+        <x-input-error :messages="$errors->get('form.description')" class="mt-2" />
+      </div>
 
-    <div>
-      <input type="file" wire:model="thumbnail" class="ring-none" @disabled(!$course)>
+      <div>
+        <x-input-label for="slug" :value="__('Slug')" />
+        <x-text-input :disabled="!$this->form->course" wire:model="form.slug" id="slug" class="block mt-1 w-full" type="text"
+          name="slug" autofocus autocomplete="slug" />
+        <x-input-error :messages="$errors->get('form.slug')" class="mt-2" />
+      </div>
 
-      <x-input-error :messages="$errors->get('thumbnail')" class="mt-2" />
+      <div>
+        <input type="file" wire:model="form.thumbnail" class="ring-none" @disabled(!$this->form->course)>
 
-      @if ($thumbnail || $course)
-        <img class="mt-2 rounded-lg w-[50%] block"
-          src="{{ $thumbnail ? $thumbnail->temporaryUrl() : $course?->image_url }}" />
-      @endif
-    </div>
+        <x-input-error :messages="$errors->get('form.thumbnail')" class="mt-2" />
 
-    <div class="flex items-center gap-4">
-      <x-primary-button :disabled="!$course">{{ __('Save') }}</x-primary-button>
-    </div>
-  </form>
+        @if ($this->form->thumbnail || $this->form->course)
+          <img class="mt-2 rounded-lg w-[50%] block"
+            src="{{ $this->form->thumbnail ? $this->form->thumbnail->temporaryUrl() : $this->form->course?->image_url }}" />
+        @endif
+      </div>
+
+      <div class="flex items-center gap-4">
+        <x-primary-button :disabled="!$this->form->course">{{ __('Save') }}</x-primary-button>
+      </div>
+    </form>
+  @endif
 </section>
 
 @script
@@ -117,10 +99,12 @@ $submit = function () {
       const section = document.getElementById('edit-course-section');
 
       if (section) {
-        section.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+        setTimeout(() => {
+          section.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 0); // 0s: to ensure runned after /livewire/update fetch
       }
     });
 
