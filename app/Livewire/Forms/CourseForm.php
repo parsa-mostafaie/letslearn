@@ -12,7 +12,7 @@ use Milwad\LaravelValidate\Rules\ValidSlug;
 
 class CourseForm extends Form
 {
-    protected $model = null;
+    public $course = null;
 
     public $title = '';
     public $description = '';
@@ -23,8 +23,8 @@ class CourseForm extends Form
     {
         $unique = Rule::unique(Course::class);
         
-        if ($this->model) {
-            $unique->ignoreModel($this->model);
+        if ($this->course) {
+            $unique->ignoreModel($this->course);
         }
 
         return [
@@ -35,10 +35,8 @@ class CourseForm extends Form
         ];
     }
 
-    public function save($model = null)
+    public function save()
     {
-        $this->model = $model;
-
         $data = $this->validate();
 
         $data['slug'] = $data['slug'] ?: Str::slug($data['title']);
@@ -46,8 +44,8 @@ class CourseForm extends Form
         if ($data['thumbnail']) {
             $data['thumbnail'] = $data['thumbnail']->store('course-thumbnails');
 
-            if ($this->model)
-                $this->model->removePreviousImage();
+            if ($this->course)
+                $this->course->removePreviousImage();
         }
 
         /**
@@ -55,11 +53,23 @@ class CourseForm extends Form
          */
         $user = Auth::user();
 
-        if (!$this->model)
+        if (!$this->course)
             $user->courses()->create($data);
         else
-            $this->model->update($data);
+            $this->course->update($data);
 
         $this->reset();
+    }
+
+    public function setModel($course = null){
+        $this->course = $course;
+
+        if ($this->course) {
+            $this->title = $this->course->title;
+            $this->description = $this->course->description;
+            $this->slug = $this->course->slug;
+        }
+
+        return $this->course;
     }
 }
