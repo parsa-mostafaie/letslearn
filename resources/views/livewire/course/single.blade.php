@@ -20,7 +20,11 @@ mount(function () {
   <div class="grow">
     <h1 class="font-bold text-lg flex justify-between mb-2">
       {{ $course->title }}
-      <div><livewire:course.action.enroll-button :course="$course" /></div>
+      <div>
+        @can('enroll', $this->course)
+          <livewire:course.action.enroll-button :course="$this->course" />
+        @endcan
+      </div>
     </h1>
     {{ $course->description }}
     <p class="text-gray-400">{{ $course->author->name }}</p>
