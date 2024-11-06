@@ -5,9 +5,13 @@ namespace App\Livewire;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use App\Models\Course;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\Auth;
 use Rappasoft\LaravelLivewireTables\Views\Columns\ButtonGroupColumn;
 use Rappasoft\LaravelLivewireTables\Views\Columns\ComponentColumn;
 use Rappasoft\LaravelLivewireTables\Views\Columns\LivewireComponentColumn;
+use Rappasoft\LaravelLivewireTables\Views\Filters\BooleanFilter;
 
 class CoursesTable extends DataTableComponent
 {
@@ -23,6 +27,18 @@ class CoursesTable extends DataTableComponent
   public function configure(): void
   {
     $this->setPrimaryKey('id');
+  }
+
+  public function filters(): array
+  {
+    return [
+      BooleanFilter::make("My courses")
+        ->filter(function (Builder $builder, bool $enabled) {
+          if ($enabled && Auth::user()) {
+            $builder->whereBelongsTo(Auth::user());
+          }
+        })
+    ];
   }
 
   public function columns(): array
@@ -50,7 +66,7 @@ class CoursesTable extends DataTableComponent
         ->sortable(),
       LivewireComponentColumn::make('Actions', 'id')
         ->component('course.actions')
-        ->attributes(fn($value)=>['course_id'=>$value]),
+        ->attributes(fn($value) => ['course_id' => $value]),
     ];
   }
 }

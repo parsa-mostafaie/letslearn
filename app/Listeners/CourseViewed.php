@@ -23,11 +23,12 @@ class CourseViewed
     {
         $course = $event->course;
         $user = $event->user;
+        $activity = $user?->activity_identifier ?? 'Anonymous';
 
         activity()
             ->performedOn($course)
             ->causedBy($user)
             ->event('course-viewed')
-            ->log("The $user->activity_identifier has viewed the `$course->title` course.");
+            ->log("The $activity has viewed the `$course->title` course.");
     }
 }

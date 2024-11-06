@@ -31,7 +31,7 @@ class CoursePolicy
      */
     public function create(?User $user): bool
     {
-        return true;
+        return !!$user;
     }
 
     /**
@@ -39,7 +39,7 @@ class CoursePolicy
      */
     public function enroll(?User $user, Course $course): bool
     {
-        return $user?->isNot($course->author);
+        return !!$user?->isNot($course->author);
     }
 
     /**
@@ -47,7 +47,7 @@ class CoursePolicy
      */
     public function update(?User $user, Course $course): bool
     {
-        return $user?->is($course->author);
+        return !!$user?->is($course->author);
     }
 
     /**
@@ -63,7 +63,7 @@ class CoursePolicy
      */
     public function restore(?User $user, Course $course): bool
     {
-        return true;
+        return $this->delete($user, $course);
     }
 
     /**
