@@ -17,7 +17,7 @@ class CourseForm extends Form
     public $title = '';
     public $description = '';
     public $slug = '';
-    public $thumbnail;
+    public $thumbnail = null;
 
     public function rules()
     {

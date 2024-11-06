@@ -21,7 +21,7 @@ class CoursesTable extends DataTableComponent
 
   public function builder(): \Illuminate\Database\Eloquent\Builder
   {
-    return Course::latest()->with('author');
+    return Course::latest()->latest('id')->with('author');
   }
 
   public function configure(): void
@@ -38,6 +38,7 @@ class CoursesTable extends DataTableComponent
             $builder->whereBelongsTo(Auth::user());
           }
         })
+        ->setFilterDefaultValue(true)
     ];
   }
 

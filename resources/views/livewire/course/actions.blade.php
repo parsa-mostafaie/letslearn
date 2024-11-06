@@ -10,8 +10,10 @@ state(['course_id']);
 $course = computed(fn() => Course::findOrFail($this->course_id));
 ?>
 
-<div
-  class="flex gap [&>*:not(:first-child)]:rounded-l-none  [&>*:not(:first-child)>*]:rounded-l-none [&>*:not(:last-child)>*]:rounded-r-none [&>*:not(:last-child)]:rounded-r-none">
+<x-button-group>
+  @can('delete', $this->course)
+    <livewire:course.action.delete-button :course="$this->course" />
+  @endcan
   @can('update', $this->course)
     <livewire:course.action.edit-button :course="$this->course" />
   @endcan
@@ -19,4 +21,4 @@ $course = computed(fn() => Course::findOrFail($this->course_id));
     <livewire:course.action.enroll-button :course="$this->course" />
   @endcan
   <livewire:course.action.show-button :course="$this->course" />
-</div>
+</x-button-group>
