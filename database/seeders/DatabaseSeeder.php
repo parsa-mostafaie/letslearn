@@ -14,18 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!User::where('email', 'admin@example.com')->exists())
-            User::factory()->create([
-                'id' => 1,
-                'firstname' => 'Admin',
-                'lastname' => '',
-                'email' => 'admin@example.com',
-                'password' => Hash::make("admin@example.com")
-            ]);
-
-        User::factory(10)->unverified()->create();
-        User::factory(10)->create();
-
-        $this->call([UserCourseSeeder::class]);
+        $this->call([UserSeeder::class, UserCourseSeeder::class]);
     }
 }
