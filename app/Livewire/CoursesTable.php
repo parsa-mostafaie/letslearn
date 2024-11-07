@@ -10,6 +10,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\Auth;
 use Rappasoft\LaravelLivewireTables\Views\Columns\ButtonGroupColumn;
 use Rappasoft\LaravelLivewireTables\Views\Columns\ComponentColumn;
+use Rappasoft\LaravelLivewireTables\Views\Columns\CountColumn;
 use Rappasoft\LaravelLivewireTables\Views\Columns\LivewireComponentColumn;
 use Rappasoft\LaravelLivewireTables\Views\Filters\BooleanFilter;
 
@@ -19,14 +20,15 @@ class CoursesTable extends DataTableComponent
 
   protected $listeners = ['courses-table-reload' => '$refresh'];
 
-  public function builder(): \Illuminate\Database\Eloquent\Builder
+  public function builder(): Builder
   {
-    return Course::latest()->latest('id')->with('author');
+    return Course::with('author');
   }
 
   public function configure(): void
   {
     $this->setPrimaryKey('id');
+    $this->setDefaultSort('id', 'desc');
   }
 
   public function filters(): array
@@ -38,7 +40,7 @@ class CoursesTable extends DataTableComponent
             $builder->whereBelongsTo(Auth::user());
           }
         })
-        ->setFilterDefaultValue(true)
+        ->setFilterDefaultValue(false)
     ];
   }
 
@@ -54,6 +56,9 @@ class CoursesTable extends DataTableComponent
       Column::make("Description", "description")
         ->sortable()
         ->searchable(),
+      CountColumn::make('Enrolled Users')
+        ->setDataSource('enrolls')
+        ->sortable(),
       Column::make("Author", "user_id")
         ->format(
           fn($value, $row, Column $column) => $row->author->name
@@ -65,9 +70,11 @@ class CoursesTable extends DataTableComponent
         ->sortable(),
       Column::make("Updated at", "updated_at")
         ->sortable(),
+      Column::make("Deleted at", "deleted_at")
+        ->sortable(),
       LivewireComponentColumn::make('Actions', 'id')
         ->component('course.actions')
-        ->attributes(fn($value) => ['course_id' => $value]),
+        ->attributes(fn($value) => ['course' => $value]),
     ];
   }
 }
