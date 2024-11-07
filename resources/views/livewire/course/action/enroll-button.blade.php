@@ -20,7 +20,7 @@ $action = function () {
     }
 
     $this->dispatch('courses-table-reload');
-    $this->dispatch('course-single-reload');
+    $this->dispatch('course-single-reload', $this->course->id);
 };
 ?>
 

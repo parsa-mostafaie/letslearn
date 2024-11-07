@@ -18,7 +18,7 @@ class CoursesTable extends DataTableComponent
 {
   protected $model = Course::class;
 
-  // protected $listeners = ['courses-table-reload' => '$refresh'];
+  protected $listeners = ['courses-table-reload' => '$refresh'];
 
   public function builder(): Builder
   {
@@ -70,9 +70,11 @@ class CoursesTable extends DataTableComponent
         ->sortable(),
       Column::make("Updated at", "updated_at")
         ->sortable(),
+      Column::make("Deleted at", "deleted_at")
+        ->sortable(),
       LivewireComponentColumn::make('Actions', 'id')
         ->component('course.actions')
-        ->attributes(fn($value) => ['course_id' => $value]),
+        ->attributes(fn($value) => ['course' => $value]),
     ];
   }
 }

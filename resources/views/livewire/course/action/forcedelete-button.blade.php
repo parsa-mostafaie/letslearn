@@ -9,9 +9,9 @@ use App\Models\Course;
 state(['course']);
 
 $action = function () {
-    $this->authorize('delete', $this->course);
+    $this->authorize('forceDelete', $this->course);
 
-    $this->course->delete();
+    $this->course->forceDelete();
 
     $this->dispatch('courses-table-reload');
     $this->dispatch('course-single-reload', $this->course->id);
@@ -20,6 +20,6 @@ $action = function () {
 
 <div>
   @can('delete', $this->course)
-    <x-danger-button wire:click="action">Delete</x-danger-button>
+    <x-danger-button wire:click="action">Force Delete</x-danger-button>
   @endcan
 </div>

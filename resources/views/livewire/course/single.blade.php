@@ -5,8 +5,10 @@ use App\Models\Course, App\Events\CourseViewedEvent;
 state(['course']);
 
 on([
-    'course-single-reload' => function () {
-        $this->course->fresh();
+    'course-single-reload' => function ($course) {
+        if ($course == $this->course->id) {
+            $this->course->fresh();
+        }
     },
 ]);
 
@@ -20,11 +22,7 @@ mount(function () {
   <div class="grow">
     <h1 class="font-bold text-lg flex justify-between mb-2">
       {{ $course->title }}
-      <div>
-        @can('enroll', $this->course)
-          <livewire:course.action.enroll-button :course="$this->course" />
-        @endcan
-      </div>
+      <livewire:course.actions :course="$this->course" :in_show="true" />
     </h1>
     {{ $course->description }}
     <p class="text-gray-400">{{ $course->author->name }}</p>
