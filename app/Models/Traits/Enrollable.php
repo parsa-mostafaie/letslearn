@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 
 trait Enrollable
 {
-  public function enrolledUsers()
+  public function enrolls()
   {
     return $this->belongsToMany(User::class)->withTimestamps(); // A course can have many enrolled users
   }
@@ -18,10 +18,11 @@ trait Enrollable
     }
 
     // Check if the user is enrolled in this course
-    return $this->enrolledUsers()->where('users.id', $user->id)->exists();
+    return $this->enrolls()->where('users.id', $user->id)->exists();
   }
 
-  public function getIsEnrolledAttribute(){
+  public function getIsEnrolledAttribute()
+  {
     return $this->isEnrolledBy(Auth::user());
   }
 
@@ -31,7 +32,7 @@ trait Enrollable
       return false; // If no user is provided, return false
     }
 
-    $this->enrolledUsers()->attach($user); // Attach the user to the enrolled users
+    $this->enrolls()->attach($user); // Attach the user to the enrolled users
 
     return true; // Return true to indicate successful enrollment
   }
@@ -43,12 +44,13 @@ trait Enrollable
     }
 
     // Detach the user from the enrolled users
-    $this->enrolledUsers()->detach($user);
+    $this->enrolls()->detach($user);
 
     return true; // Return true to indicate successful unenrollment
   }
 
-  public function getTotalEnrollmentCountAttribute(){
-    return $this->enrolledUsers()->count();
+  public function getTotalEnrollmentCountAttribute()
+  {
+    return $this->enrolls()->count();
   }
 }
